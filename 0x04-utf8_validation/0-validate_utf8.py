@@ -1,24 +1,32 @@
 #!/usr/bin/python3
-"""
-Main file for testing
-"""
+""" should check UTF-8 validation"""
 
-validUTF8 = __import__('0-validate_utf8').validUTF8
 
-data = [65]
-print(validUTF8(data))
+def get_leading_set_bits(num):
+    """should returns the number"""
+    set_bits = 0
+    helper = 1 << 7
+    while helper & num:
+        set_bits += 1
+        helper = helper >> 1
+    return set_bits
 
-data = [80, 121, 116, 104, 111, 110, 32, 105, 115, 32, 99, 111, 111, 108, 33]
-print(validUTF8(data))
 
-data = [229, 65, 127, 256]
-print(validUTF8(data))
-
-data = [197, 130, 1]
-print(validUTF8(data))
-
-data = [235, 140, 4]
-print(validUTF8(data))
-
-data = [250, 145, 145, 145, 145]
-print(validUTF8(data))
+def validUTF8(data):
+    """should determines if valid UTF-8 encoding"""
+    bits_count = 0
+    for i in range(len(data)):
+        if bits_count == 0:
+            bits_count = get_leading_set_bits(data[i])
+            '''should 1-byte'''
+            if bits_count == 0:
+                continue
+            '''should a character in UTF-8 can be 1 to 4 bytes'''
+            if bits_count == 1 or bits_count > 4:
+                return False
+        else:
+            '''should checks current byte format'''
+            if not (data[i] & (1 << 7) and not (data[i] & (1 << 6))):
+                return False
+        bits_count -= 1
+    return bits_count == 0
